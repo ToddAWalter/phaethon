@@ -31,6 +31,7 @@
 #include <cstdio>
 
 #include <QApplication>
+#include <QCoreApplication>
 
 #include "src/version/version.h"
 
@@ -121,6 +122,8 @@ Phaethon::Phaethon(const Common::UString &path) : _path(path) {
 	int argc = 1; // QApplication requires argc to be at least 1
 	char empty[] = ""; // Silence -Wwrite-string warning
 	char *argv[] = {empty}; // QApplication requires argv to be at least 1
+
+	QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
 	QApplication app(argc, argv);
 
