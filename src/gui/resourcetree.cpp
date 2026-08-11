@@ -132,20 +132,19 @@ QVariant ResourceTree::data(const QModelIndex &index, int role) const {
 	ResourceTreeItem *item = itemFromIndex(index);
 
 	if (role == Qt::DecorationRole) {
-		switch (item->getSource()) {
-			case Source::kSourceFile:
-			case Source::kSourceArchiveFile:
-				switch (item->getResourceType()) {
-					case Aurora::kResourceSound:
-						return QIcon::fromTheme("audio-x-generic");
-					case Aurora::kResourceImage:
-						return QIcon::fromTheme("image");
-					case Aurora::kResourceArchive:
-						return QIcon::fromTheme("package-x-generic");
-					default:
-						return _iconProvider->icon(QFileIconProvider::File);
-				}
-				break;
+		switch (item->getResourceType()) {
+			case Aurora::kResourceImage:
+				return QIcon::fromTheme("image-x-generic");
+			case Aurora::kResourceVideo:
+				return QIcon::fromTheme("video-x-generic");
+			case Aurora::kResourceSound:
+				return QIcon::fromTheme("audio-x-generic");
+			case Aurora::kResourceArchive:
+				return QIcon::fromTheme("package-x-generic");
+			case Aurora::kResourceText:
+				return QIcon::fromTheme("text-x-generic");
+			case Aurora::kResourceTable:
+				return QIcon::fromTheme("application-x-generic");
 			default:
 				return _iconProvider->icon(QFileInfo(item->getPath()));
 		}
