@@ -76,29 +76,22 @@ private:
 
 	QScrollArea *_scrollAreaImage { nullptr };
 
-	const ResourceTreeItem *_currentItem { nullptr };
-
 	// Necessary because the way zooming is implemented modifies the pixmap.
 	QPixmap _originalPixmap; ///< To reset to default zoom level.
-	QSize _originalSize; ///< To reset to default zoom level.
 
-	float _zoomFactor { 1.0f };
+	int _zoomLevel;
 
 	Qt::TransformationMode _mode { Qt::SmoothTransformation }; ///< Linear/nearest.
 
-	/** Opens the image path contained in _currentItem and displays it. */
-	void  loadImage();
-
+	void  loadImage(const Images::Decoder &image);
 	void  convertImage(const Images::Decoder &image, byte *dataOut);
 	void  writePixel(const byte *&dataIn, Images::PixelFormat format, byte *&dataOut);
 	void  getImageDimensions(const Images::Decoder &image, int32_t &width, int32_t &height);
-	void  getSize(int &fullWidth, int &fullHeight, int &currentWidth, int &currentHeight) const;
-	void  fit(bool onlyWidth, bool grow);
-	float getCurrentZoomLevel() const;
-	void  zoomTo(int width, int height, float zoom);
-	void  zoomTo(float zoom);
-	void  zoomStep(float step);
-	void  updateButtons();
+	void  redrawImage();
+	void  setZoomLevel(int value);
+	void  zoomTo(int zoomLevel);
+	void  zoomToFit(bool grow);
+	void  zoomToFitWidth(bool grow);
 };
 
 } // End of namespace GUI

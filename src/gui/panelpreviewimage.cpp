@@ -40,7 +40,14 @@
 #include "src/gui/panelpreviewimage.h"
 #include "src/gui/resourcetreeitem.h"
 
-// FIXME: Zooming is kind of broken.
+namespace {
+
+constexpr int kZoomLevelMin      =   10;
+constexpr int kZoomLevelOriginal =  100;
+constexpr int kZoomLevelMax      = 1000;
+constexpr int kZoomLevelStep     =   10;
+
+} // End of anonymous namespace
 
 namespace GUI {
 
@@ -88,16 +95,15 @@ PanelPreviewImage::PanelPreviewImage(QWidget *parent) :
 	layoutTop->addLayout(layoutLeft, 2, 0);
 	layoutTop->addWidget(_scrollAreaImage, 2, 1);
 
-	_labelDimensions->setText(tr("(WxH)"));
-	_labelZoomPercent->setText(tr("100%"));
-
 	_labelImage->setBackgroundRole(QPalette::Base);
-	_labelImage->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
+	_labelImage->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	_labelImage->setScaledContents(true);
 
 	_scrollAreaImage->setWidget(_labelImage);
 
 	_sliderBrightness->setOrientation(Qt::Horizontal);
+
+	setZoomLevel(kZoomLevelOriginal);
 
 	slotSliderBrightness(0);
 
@@ -115,20 +121,20 @@ PanelPreviewImage::PanelPreviewImage(QWidget *parent) :
 void PanelPreviewImage::show(const ResourceTreeItem *item) {
 	PanelBase::show(item);
 
-	_zoomFactor = 1.0f;
 	_originalPixmap = QPixmap();
-	_labelImage->setPixmap(_originalPixmap);
 
 	if (item->getResourceType() != Aurora::kResourceImage)
 		return;
 
-	_currentItem = item;
-
 	try {
-		loadImage();
+		std::unique_ptr<Images::Decoder> image(item->getImage());
+		if (image)
+			loadImage(*image);
 	} catch (Common::Exception &e) {
 		Common::printException(e, "WARNING: ");
 	}
+
+	redrawImage();
 }
 
 static void cleanupImage(void *info) {
@@ -137,14 +143,12 @@ static void cleanupImage(void *info) {
 	delete[] image;
 }
 
-void PanelPreviewImage::loadImage() {
-	std::unique_ptr<Images::Decoder> image(_currentItem->getImage());
-
-	if ((image->getMipMapCount() == 0) || (image->getLayerCount() == 0))
+void PanelPreviewImage::loadImage(const Images::Decoder &image) {
+	if ((image.getMipMapCount() == 0) || (image.getLayerCount() == 0))
 		return;
 
 	int32_t width = 0, height = 0;
-	getImageDimensions(*image, width, height);
+	getImageDimensions(image, width, height);
 	if ((width <= 0) || (height <= 0))
 		throw Common::Exception("Invalid image dimensions (%d x %d)", width, height);
 
@@ -153,17 +157,12 @@ void PanelPreviewImage::loadImage() {
 	std::unique_ptr<byte[]> rgbaData = std::make_unique<byte[]>(width * height * 4);
 	std::memset(rgbaData.get(), 0, width * height * 4);
 
-	convertImage(*image, rgbaData.get());
+	convertImage(image, rgbaData.get());
 
 	QImage qImage(rgbaData.get(), width, height, QImage::Format_RGBA8888, cleanupImage, rgbaData.get());
 	rgbaData.release();
 
 	_originalPixmap = QPixmap::fromImage(qImage.mirrored());
-	_originalSize = _originalPixmap.size();
-
-	_labelImage->setPixmap(_originalPixmap);
-	_labelImage->adjustSize();
-	_labelImage->setFixedSize(_originalSize);
 }
 
 void PanelPreviewImage::convertImage(const Images::Decoder &image, byte *dataOut) {
@@ -263,158 +262,86 @@ void PanelPreviewImage::slotSliderBrightness(int value) {
 	_scrollAreaImage->setStyleSheet(QString("background-color: rgb(%1,%2,%3)").arg(rgb).arg(rgb).arg(rgb));
 }
 
-void PanelPreviewImage::updateButtons() {
-	_buttonZoomOut->setEnabled(_zoomFactor <= 5.0f);
-	_buttonZoomIn->setEnabled(_zoomFactor >= 0.1f);
-	_buttonZoomOriginal->setEnabled(_zoomFactor <= 0.95f || _zoomFactor >= 1.05f);
-}
-
-void PanelPreviewImage::zoomTo(int width, int height, float zoom) {
-	float aspect = ((float) width) / ((float) height);
-
-	// Calculate width using the zoom level and height using the aspect ratio
-	width  = MAX<int>(width * zoom  , 1);
-	height = MAX<int>(width / aspect, 1);
-
-	QSize newSize(width, height);
-	_labelImage->setPixmap(_originalPixmap.scaled(newSize, Qt::IgnoreAspectRatio, _mode));
-	_labelImage->setFixedSize(newSize);
-
-	_zoomFactor = zoom;
-	updateButtons();
-	_labelZoomPercent->setText(QString("%1%").arg((int) (_zoomFactor * 100)));
-}
-
-void PanelPreviewImage::zoomTo(float zoom) {
-	int fullWidth, fullHeight, currentWidth, currentHeight;
-
-	getSize(fullWidth, fullHeight, currentWidth, currentHeight);
-	if ((fullWidth <= 0) || (fullHeight <= 0) || (currentWidth <= 0) || (currentHeight <= 0))
-		return;
-
-	zoomTo(fullWidth, fullHeight, zoom);
-}
-
-void PanelPreviewImage::zoomStep(float step) {
-	int fullWidth, fullHeight, currentWidth, currentHeight;
-
-	getSize(fullWidth, fullHeight, currentWidth, currentHeight);
-	if ((fullWidth <= 0) || (fullHeight <= 0) || (currentWidth <= 0) || (currentHeight <= 0))
-		return;
-
-	float zoom = ((float) currentWidth) / ((float) fullWidth);
-
-	// Only allow zoom from 10% to 500%
-	float newZoom = CLIP<float>(zoom + step, 0.1f, 5.0f);
-	if (zoom == newZoom)
-		return;
-
-	zoomTo(fullWidth, fullHeight, newZoom);
-}
-
 void PanelPreviewImage::slotZoomIn() {
-	zoomStep(0.1f);
+	zoomTo(_zoomLevel + kZoomLevelStep);
 }
 
 void PanelPreviewImage::slotZoomOut() {
-	zoomStep(-0.1f);
+	zoomTo(_zoomLevel - kZoomLevelStep);
 }
 
 void PanelPreviewImage::slotZoomOriginal() {
-	_labelImage->setPixmap(_originalPixmap.scaled(_originalSize, Qt::IgnoreAspectRatio, _mode));
-	_labelImage->setFixedSize(_originalSize);
-	_zoomFactor = 1.0f;
-	updateButtons();
-	_labelZoomPercent->setText("100%");
-	// fixme: there's probably a better way
+	zoomTo(kZoomLevelOriginal);
 }
 
 void PanelPreviewImage::slotFit() {
-	fit(false, true);
+	zoomToFit(true);
 }
 
 void PanelPreviewImage::slotFitWidth() {
-	fit(true, true);
+	zoomToFitWidth(true);
 }
 
 void PanelPreviewImage::slotShrinkFit() {
-	fit(false, false);
+	zoomToFit(false);
 }
 
 void PanelPreviewImage::slotShrinkFitWidth() {
-	fit(true, false);
+	zoomToFitWidth(false);
 }
 
-// FIXME: zoom to 100% and shrink fit width are equivalent, and also don't cause a
-// re-draw after this is toggled.
 void PanelPreviewImage::slotNearest(bool checked) {
-	if (checked)
-		_mode = Qt::FastTransformation;
-	else
-		_mode = Qt::SmoothTransformation;
-
-	_labelImage->setPixmap(_originalPixmap.scaled(_labelImage->size(), Qt::IgnoreAspectRatio, _mode));
-	// fixme: there's probably a better way
+	_mode = checked ? Qt::FastTransformation : Qt::SmoothTransformation;
+	redrawImage();
 }
 
-void PanelPreviewImage::getSize(int &fullWidth, int &fullHeight, int &currentWidth, int &currentHeight) const {
-	if (!_labelImage) {
-		fullWidth = fullHeight = currentWidth = currentHeight = 0;
-		return;
+void PanelPreviewImage::redrawImage() {
+	int width = _zoomLevel * _originalPixmap.width() / kZoomLevelOriginal;
+	int height = _zoomLevel * _originalPixmap.height() / kZoomLevelOriginal;
+
+	QPixmap scaledPixmap = _originalPixmap.scaled(width, height, Qt::IgnoreAspectRatio, _mode);
+
+	_labelImage->setPixmap(scaledPixmap);
+	_labelImage->setFixedSize(width, height);
+}
+
+void PanelPreviewImage::setZoomLevel(int value) {
+	_zoomLevel = CLIP<int>(value, kZoomLevelMin, kZoomLevelMax);
+	_labelZoomPercent->setText(QString("%1%").arg(_zoomLevel * 100 / kZoomLevelOriginal));
+	_buttonZoomIn->setEnabled(_zoomLevel < kZoomLevelMax);
+	_buttonZoomOut->setEnabled(_zoomLevel > kZoomLevelMin);
+	_buttonZoomOriginal->setEnabled(_zoomLevel != kZoomLevelOriginal);
+}
+
+void PanelPreviewImage::zoomTo(int zoomLevel) {
+	setZoomLevel(zoomLevel);
+	redrawImage();
+}
+
+void PanelPreviewImage::zoomToFit(bool grow) {
+	const QWidget *viewport = _scrollAreaImage->viewport();
+
+	int widthZoomLevel = viewport->width() * kZoomLevelOriginal / _originalPixmap.width();
+	int heightZoomLevel = viewport->height() * kZoomLevelOriginal / _originalPixmap.height();
+	int newZoomLevel = MIN<int>(widthZoomLevel, heightZoomLevel);
+
+	if (grow || newZoomLevel < _zoomLevel) {
+		zoomTo(newZoomLevel);
 	}
-
-	fullWidth     = _originalPixmap.width();
-	fullHeight    = _originalPixmap.height();
-	currentWidth  = _labelImage->width();
-	currentHeight = _labelImage->height();
 }
 
-float PanelPreviewImage::getCurrentZoomLevel() const {
-	int fullWidth, fullHeight, currentWidth, currentHeight;
+void PanelPreviewImage::zoomToFitWidth(bool grow) {
+	// Must enable vertical scrollbar in order to calculate viewport width correctly.
+	_scrollAreaImage->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 
-	getSize(fullWidth, fullHeight, currentWidth, currentHeight);
-	if ((fullWidth <= 0) || (fullHeight <= 0) || (currentWidth <= 0) || (currentHeight <= 0))
-		return 1.0f;
+	const QWidget *viewport = _scrollAreaImage->viewport();
+	int newZoomLevel = viewport->width() * kZoomLevelOriginal / _originalPixmap.width();
 
-	return ((float) currentWidth) / ((float) fullWidth);
-}
+	_scrollAreaImage->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
-void PanelPreviewImage::fit(bool onlyWidth, bool grow) {
-	int fullWidth, fullHeight, currentWidth, currentHeight;
-
-	getSize(fullWidth, fullHeight, currentWidth, currentHeight);
-	if ((fullWidth <= 0) || (fullHeight <= 0) || (currentWidth <= 0) || (currentHeight <= 0))
-		return;
-
-	float aspect = ((float) fullWidth) / ((float) fullHeight);
-
-	QRect rect = _scrollAreaImage->contentsRect();
-	int areaWidth = rect.width();
-	int areaHeight = rect.height();
-
-	// The size we want to scale to, depending on whether to grow the image
-	int toWidth  = grow ? areaWidth  : MIN<int>(areaWidth , fullWidth);
-	int toHeight = grow ? areaHeight : MIN<int>(areaHeight, fullHeight);
-
-	// Try to fit by width
-	int newWidth  = toWidth;
-	int newHeight = MAX<int>(newWidth / aspect, 1);
-
-	// If the height overflows, fit by height instead (if requested)
-	if (!onlyWidth && (newHeight > toHeight)) {
-		newHeight = toHeight;
-		newWidth  = MAX<int>(newHeight * aspect, 1);
+	if (grow || newZoomLevel < _zoomLevel) {
+		zoomTo(newZoomLevel);
 	}
-
-	QSize newSize(newWidth, newHeight);
-	_labelImage->setPixmap(_originalPixmap.scaled(newSize, Qt::IgnoreAspectRatio, _mode));
-	_labelImage->setFixedSize(newSize);
-
-	float zoomLevel = getCurrentZoomLevel() * 100;
-	_zoomFactor = 100 / zoomLevel;
-	_labelZoomPercent->setText(QString("%1%").arg((int) zoomLevel));
-
-	_buttonZoomOriginal->setEnabled(true);
 }
 
 } // End of namespace GUI
