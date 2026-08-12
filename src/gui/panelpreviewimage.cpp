@@ -102,6 +102,7 @@ PanelPreviewImage::PanelPreviewImage(QWidget *parent) :
 	_scrollAreaImage->setWidget(_labelImage);
 
 	_sliderBrightness->setOrientation(Qt::Horizontal);
+	_sliderBrightness->setMaximum(255);
 
 	setZoomLevel(kZoomLevelOriginal);
 
@@ -256,10 +257,9 @@ void PanelPreviewImage::getImageDimensions(const Images::Decoder &image, int32_t
 	}
 }
 
-// FIXME: This also changes the scrollbar color
 void PanelPreviewImage::slotSliderBrightness(int value) {
-	int rgb = static_cast<int>(((float) value / (float) _sliderBrightness->maximum()) * 255.f);
-	_scrollAreaImage->setStyleSheet(QString("background-color: rgb(%1,%2,%3)").arg(rgb).arg(rgb).arg(rgb));
+	QString styleSheet = QString("background-color: rgb(%1, %2, %3)").arg(value).arg(value).arg(value);
+	_scrollAreaImage->viewport()->setStyleSheet(styleSheet);
 }
 
 void PanelPreviewImage::slotZoomIn() {
