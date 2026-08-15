@@ -158,10 +158,10 @@ if test "x$with_std" = "xyes"; then
 	case "$target" in
 		*mingw*)
 			dnl Needed by _wfopen in src/common/platform.cpp for mingw32 (but technically not for mingw-w64)
-			AX_CHECK_COMPILER_FLAGS_VAR([C++], [STD], [-std=gnu++14])
+			AX_CHECK_COMPILER_FLAGS_VAR([C++], [STD], [-std=gnu++17])
 			;;
 		*)
-			AX_CHECK_COMPILER_FLAGS_VAR([C++], [STD], [-std=c++14])
+			AX_CHECK_COMPILER_FLAGS_VAR([C++], [STD], [-std=c++17])
 			;;
 	esac;
 fi
@@ -208,7 +208,7 @@ AX_CHECK_ZLIB(1, 2, 3, 0, , AC_MSG_ERROR([zlib(>= 1.2.3.4) is required and could
 AX_CHECK_LZMA(5, 0, 3, 2, , AC_MSG_ERROR([liblzma(>= 5.0.5) is required and could not be found!]))
 
 dnl Graphic libraries
-AX_CHECK_QT5(5.7.1, , AC_MSG_ERROR([Qt5 (>= 5.7.1, modules Core, Gui, Widgets, Concurrent) is required and could not be found!]))
+AX_CHECK_QT6(6.0.0, , AC_MSG_ERROR([Qt6 (>= 6.0.0, modules Core, Gui, Widgets, Concurrent) is required and could not be found!]))
 
 dnl Sound libraries
 AX_CHECK_AL([1.12],  , AC_MSG_ERROR([OpenAL Soft (>= 1.12) is required and could not be found!]))

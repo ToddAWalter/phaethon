@@ -81,7 +81,7 @@ else()
 endif()
 
 # C++ standard we're compiling against
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -315,10 +315,10 @@ find_package(LibLZMA REQUIRED)
 include_directories(${LIBLZMA_INCLUDE_DIRS})
 list(APPEND PHAETHON_LIBRARIES ${LIBLZMA_LIBRARIES})
 
-find_package(Qt5Widgets REQUIRED)
-find_package(Qt5Concurrent REQUIRED)
-include_directories(${Qt5Widgets_INCLUDE_DIRS} ${Qt5Concurrent_INCLUDE_DIRS})
-list(APPEND PHAETHON_LIBRARIES Qt5::Widgets Qt5::Concurrent)
+find_package(Qt6Widgets REQUIRED)
+find_package(Qt6Concurrent REQUIRED)
+include_directories(${Qt6Widgets_INCLUDE_DIRS} ${Qt6Concurrent_INCLUDE_DIRS})
+list(APPEND PHAETHON_LIBRARIES Qt6::Widgets Qt6::Concurrent)
 if (NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 endif()

@@ -34,7 +34,7 @@ jobs:
       id: install_qt
       uses: jurplel/install-qt-action@v2
       with:
-        version: 5.15.2
+        version: 6.0.0
         cached: ${{ steps.cache_qt.outputs.cache-hit }}
 
     - name: Restore artifacts and set up vcpkg

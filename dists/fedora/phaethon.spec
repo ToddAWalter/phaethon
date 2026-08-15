@@ -28,8 +28,8 @@ BuildRequires:  gcc-c++, make
 BuildRequires:  zlib-devel, libogg-devel, openal-soft-devel, libvorbis-devel
 BuildRequires:  libxml2-devel, xz-devel, libtool, gettext-devel
 
-BuildRequires:  qt5-devel qt5-qtbase-devel
-BuildRequires:  qt5-qtbase-gui
+BuildRequires:  qt6-devel qt6-qtbase-devel
+BuildRequires:  qt6-qtbase-gui
 
 # Boost dependencies.
 BuildRequires:  boost-devel, boost-system, boost-filesystem

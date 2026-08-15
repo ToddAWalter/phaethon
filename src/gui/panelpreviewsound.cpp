@@ -182,7 +182,11 @@ QString PanelPreviewSound::formatTime(uint64_t t) const {
 	uint32_t h = t;
 
 	QString ret;
-	return ret.sprintf("%02u:%02u:%02u.%03u", h, m, s, ms);
+	return QString("%1:%2:%3.%4")
+		.arg(h , 2, 10, QChar('0'))
+		.arg(m , 2, 10, QChar('0'))
+		.arg(s , 2, 10, QChar('0'))
+		.arg(ms, 3, 10, QChar('0'));
 }
 
 QString PanelPreviewSound::formatPercent(uint64_t total, uint64_t t) const {
@@ -195,8 +199,7 @@ QString PanelPreviewSound::formatPercent(uint64_t total, uint64_t t) const {
 
 	uint percent = CLIP<uint>((t * 100) / total, 0, 100);
 
-	QString ret;
-	return ret.sprintf("%3u%%", percent);
+	return QString("%1%").arg(percent, 3, 10, QChar(' '));
 }
 
 int PanelPreviewSound::getSliderPos(uint64_t total, uint64_t t) const {

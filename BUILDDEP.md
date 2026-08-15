@@ -17,11 +17,11 @@ Build-time library dependencies
   - Boost.ScopeExit
   - Boost.Locale
 
-- Qt (>= 5.7.1)
-  - Qt5Core
-  - Qt5Gui
-  - Qt5Widgets
-  - Qt5Concurrent
+- Qt (>= 6.0.0)
+  - Qt6Core
+  - Qt6Gui
+  - Qt6Widgets
+  - Qt6Concurrent
 
 - OpenAL Soft (>= 1.12)
 - MAD (>= 0.15.1b)

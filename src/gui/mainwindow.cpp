@@ -148,7 +148,7 @@ MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, co
 	previewWrapper->setLayout(previewWrapperLayout);
 	previewWrapper->setContentsMargins(0, 0, 0, 0);
 	previewWrapperLayout->setParent(previewWrapper);
-	previewWrapperLayout->setMargin(0);
+	previewWrapperLayout->setContentsMargins(0, 0, 0, 0);
 	previewWrapperLayout->addWidget(resInfoFrame);
 	previewWrapperLayout->addWidget(_resPreviewFrame);
 	{
@@ -217,7 +217,7 @@ MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, co
 	{
 		QHBoxLayout *hl = new QHBoxLayout(_resPreviewFrame);
 
-		hl->setMargin(0);
+		hl->setContentsMargins(0, 0, 0, 0);
 		_panelManager->setLayout(hl);
 	}
 
@@ -251,7 +251,7 @@ void MainWindow::slotLog(const QString &text) {
 void MainWindow::slotOpenDirectory() {
 	QString dir = QFileDialog::getExistingDirectory(this,
 		tr("Open directory"),
-		QString(QStandardPaths::HomeLocation),
+		QStandardPaths::writableLocation(QStandardPaths::HomeLocation),
 		QFileDialog::ShowDirsOnly);
 
 	if (!dir.isEmpty())
@@ -261,7 +261,7 @@ void MainWindow::slotOpenDirectory() {
 void MainWindow::slotOpenFile() {
 	QString fileName = QFileDialog::getOpenFileName(this,
 		tr("Open Aurora game resource file"),
-		QString(QStandardPaths::HomeLocation),
+		QStandardPaths::writableLocation(QStandardPaths::HomeLocation),
 		tr("Aurora game resource (*.*)"));
 
 	if (!fileName.isEmpty())

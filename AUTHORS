@@ -74,7 +74,7 @@ mingw-std-threads
 Verdigris
 *********
    Phaethon uses and includes the header-only library Verdigris
-   (<https://github.com/woboq/verdigris>) to use Qt5 without moc. Verdigris
+   (<https://github.com/woboq/verdigris>) to use Qt6 without moc. Verdigris
    is licensed under version 3 or later of the Lesser GNU General Public
    License. For the full license texts, see external/verdigris/LICENSE.LGPLv3
    or <https://gnu.org/licenses/lgpl-3.0.html>.
