@@ -134,21 +134,30 @@ QVariant ResourceTree::data(const QModelIndex &index, int role) const {
 	ResourceTreeItem *item = itemFromIndex(index);
 
 	if (role == Qt::DecorationRole) {
+
+		if (item->getSource() == GUI::kSourceDirectory) {
+			return _iconProvider->icon(QAbstractFileIconProvider::Folder);
+		}
+
+		QIcon fallbackIcon = _iconProvider->icon(QAbstractFileIconProvider::File);
 		switch (item->getResourceType()) {
 			case Aurora::kResourceImage:
-				return QIcon::fromTheme("image-x-generic");
+				return QIcon::fromTheme("image-x-generic", fallbackIcon);
 			case Aurora::kResourceVideo:
-				return QIcon::fromTheme("video-x-generic");
+				return QIcon::fromTheme("video-x-generic", fallbackIcon);
 			case Aurora::kResourceSound:
-				return QIcon::fromTheme("audio-x-generic");
+				return QIcon::fromTheme("audio-x-generic", fallbackIcon);
 			case Aurora::kResourceArchive:
-				return QIcon::fromTheme("package-x-generic");
+				return QIcon::fromTheme("package-x-generic", fallbackIcon);
 			case Aurora::kResourceText:
-				return QIcon::fromTheme("text-x-generic");
+				return QIcon::fromTheme("text-x-generic", fallbackIcon);
 			case Aurora::kResourceTable:
-				return QIcon::fromTheme("application-x-generic");
+				return QIcon::fromTheme("application-x-generic", fallbackIcon);
 			default:
-				return _iconProvider->icon(QFileInfo(item->getPath()));
+				{
+					QIcon icon = _iconProvider->icon(QFileInfo(item->getPath()));
+					return icon.isNull() ? fallbackIcon : icon;
+				}
 		}
 	}
 
