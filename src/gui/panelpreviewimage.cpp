@@ -34,6 +34,7 @@
 #include <QScrollBar>
 #include <QSlider>
 #include <QWidget>
+#include <QFileInfo>
 
 #include "external/verdigris/wobjectimpl.h"
 
@@ -127,13 +128,29 @@ void PanelPreviewImage::show(const ResourceTreeItem *item) {
 	if (item->getResourceType() != Aurora::kResourceImage)
 		return;
 
+	QImage image = QImage();
+
 	try {
-		std::unique_ptr<Images::Decoder> image(item->getImage());
-		if (image)
-			loadImage(*image);
+		std::unique_ptr<Images::Decoder> imageDecoder(item->getImage());
+		if (imageDecoder) {
+			image = loadImage(*imageDecoder);
+		}
 	} catch (Common::Exception &e) {
-		Common::printException(e, "WARNING: ");
+		// If the image fails to load (e.g., due to an unsupported image type), maybe
+		// QImageReader can decode it.
+		QByteArray format = QFileInfo(item->getName()).suffix().toLower().toLatin1();
+		if (QImageReader::supportedImageFormats().contains(format)) {
+			std::unique_ptr<Common::SeekableReadStream> resourceData(item->getResourceData());
+			std::unique_ptr<Common::MemoryReadStream> mem(resourceData->readStream(resourceData->size()));
+			image = QImage::fromData(mem->getData(), mem->size(), format.constData());
+		}
+		else {
+			Common::printException(e, "WARNING: ");
+		}
 	}
+
+	_labelDimensions->setText(QString("(%1x%2)").arg(image.width()).arg(image.height()));
+	_originalPixmap = QPixmap::fromImage(image);
 
 	redrawImage();
 }
@@ -144,16 +161,14 @@ static void cleanupImage(void *info) {
 	delete[] image;
 }
 
-void PanelPreviewImage::loadImage(const Images::Decoder &image) {
+QImage PanelPreviewImage::loadImage(const Images::Decoder &image) {
 	if ((image.getMipMapCount() == 0) || (image.getLayerCount() == 0))
-		return;
+		return QImage();
 
 	int32_t width = 0, height = 0;
 	getImageDimensions(image, width, height);
 	if ((width <= 0) || (height <= 0))
 		throw Common::Exception("Invalid image dimensions (%d x %d)", width, height);
-
-	_labelDimensions->setText(QString("(%1x%2)").arg(width).arg(height));
 
 	std::unique_ptr<byte[]> rgbaData = std::make_unique<byte[]>(width * height * 4);
 	std::memset(rgbaData.get(), 0, width * height * 4);
@@ -163,7 +178,9 @@ void PanelPreviewImage::loadImage(const Images::Decoder &image) {
 	QImage qImage(rgbaData.get(), width, height, QImage::Format_RGBA8888, cleanupImage, rgbaData.get());
 	rgbaData.release();
 
-	_originalPixmap = QPixmap::fromImage(qImage.mirrored());
+	qImage.mirror();
+
+	return qImage;
 }
 
 void PanelPreviewImage::convertImage(const Images::Decoder &image, byte *dataOut) {
@@ -296,6 +313,11 @@ void PanelPreviewImage::slotNearest(bool checked) {
 }
 
 void PanelPreviewImage::redrawImage() {
+
+	if (_originalPixmap.isNull()) {
+		return;
+	}
+
 	int width = _zoomLevel * _originalPixmap.width() / kZoomLevelOriginal;
 	int height = _zoomLevel * _originalPixmap.height() / kZoomLevelOriginal;
 

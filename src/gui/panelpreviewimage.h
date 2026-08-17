@@ -83,7 +83,7 @@ private:
 
 	Qt::TransformationMode _mode { Qt::SmoothTransformation }; ///< Linear/nearest.
 
-	void  loadImage(const Images::Decoder &image);
+	QImage  loadImage(const Images::Decoder &image);
 	void  convertImage(const Images::Decoder &image, byte *dataOut);
 	void  writePixel(const byte *&dataIn, Images::PixelFormat format, byte *&dataOut);
 	void  getImageDimensions(const Images::Decoder &image, int32_t &width, int32_t &height);
