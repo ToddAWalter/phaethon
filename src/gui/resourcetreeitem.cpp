@@ -235,6 +235,7 @@ Images::Decoder *ResourceTreeItem::getImage(Common::SeekableReadStream &res, Aur
 
 		case Aurora::kFileTypeCUR:
 		case Aurora::kFileTypeCURS:
+		case Aurora::kFileTypeICO:
 			img = new Images::WinIconImage(res);
 			break;
 

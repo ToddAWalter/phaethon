@@ -366,6 +366,7 @@ FileTypeManager::FileTypeManager() {
 	_resourceTypes[kResourceImage].push_back(kFileTypeSBM);
 	_resourceTypes[kResourceImage].push_back(kFileTypeCUR);
 	_resourceTypes[kResourceImage].push_back(kFileTypeCURS);
+	_resourceTypes[kResourceImage].push_back(kFileTypeICO);
 
 	_resourceTypes[kResourceVideo].push_back(kFileTypeBIK);
 	_resourceTypes[kResourceVideo].push_back(kFileTypeMPG);
@@ -395,6 +396,10 @@ FileTypeManager::FileTypeManager() {
 	_resourceTypes[kResourceText].push_back(kFileTypeINI);
 	_resourceTypes[kResourceText].push_back(kFileTypeTXT);
 	_resourceTypes[kResourceText].push_back(kFileTypeNSS);
+	_resourceTypes[kResourceText].push_back(kFileTypeSET);
+	_resourceTypes[kResourceText].push_back(kFileTypeWOK);
+	_resourceTypes[kResourceText].push_back(kFileTypeTXI);
+	_resourceTypes[kResourceText].push_back(kFileType1DA);
 
 	_resourceTypes[kResourceTable].push_back(kFileType2DA);
 	_resourceTypes[kResourceTable].push_back(kFileTypeGDA);
