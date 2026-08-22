@@ -34,6 +34,7 @@ src_gui_libgui_la_SOURCES += \
     src/gui/panelpreviewempty.h \
     src/gui/panelpreviewimage.h \
     src/gui/panelpreviewsound.h \
+    src/gui/panelpreviewstruct.h \
     src/gui/panelpreviewtext.h \
     src/gui/panelpreviewtable.h \
     src/gui/panelbase.h \
@@ -51,6 +52,7 @@ src_gui_libgui_la_SOURCES += \
     src/gui/panelpreviewempty.cpp \
     src/gui/panelpreviewimage.cpp \
     src/gui/panelpreviewsound.cpp \
+    src/gui/panelpreviewstruct.cpp \
     src/gui/panelpreviewtext.cpp \
     src/gui/panelpreviewtable.cpp \
     src/gui/panelmanager.cpp \

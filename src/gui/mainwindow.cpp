@@ -57,6 +57,7 @@
 #include "src/gui/panelpreviewempty.h"
 #include "src/gui/panelpreviewimage.h"
 #include "src/gui/panelpreviewsound.h"
+#include "src/gui/panelpreviewstruct.h"
 #include "src/gui/panelpreviewtext.h"
 #include "src/gui/panelpreviewtable.h"
 #include "src/gui/panelmanager.h"
@@ -190,6 +191,7 @@ MainWindow::MainWindow(QWidget *parent, const char *title, const QSize &size, co
 	_panelManager->registerPanel(new PanelPreviewImage(nullptr), Aurora::kResourceImage);
 	_panelManager->registerPanel(new PanelPreviewText(nullptr), Aurora::kResourceText);
 	_panelManager->registerPanel(new PanelPreviewTable(nullptr), Aurora::kResourceTable);
+	_panelManager->registerPanel(new PanelPreviewStruct(nullptr), Aurora::kResourceStruct);
 	_panelManager->setItem(nullptr);
 
 	PanelPreviewText *textPanel = static_cast<PanelPreviewText *>(_panelManager->getPanelByType(Aurora::kResourceText));
