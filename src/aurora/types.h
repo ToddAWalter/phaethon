@@ -410,6 +410,7 @@ enum ResourceType {
 	kResourceArchive     ,  ///< An archive resource.
 	kResourceText        ,  ///< A plaintext resource.
 	kResourceTable       ,  ///< A tabular data resource.
+	kResourceStruct      ,  ///< A structured data resource.
 	kResourceMAX
 };
 

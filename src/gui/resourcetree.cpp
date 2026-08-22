@@ -152,6 +152,7 @@ QVariant ResourceTree::data(const QModelIndex &index, int role) const {
 			case Aurora::kResourceText:
 				return QIcon::fromTheme("text-x-generic", fallbackIcon);
 			case Aurora::kResourceTable:
+			case Aurora::kResourceStruct:
 				return QIcon::fromTheme("application-x-generic", fallbackIcon);
 			default:
 				{

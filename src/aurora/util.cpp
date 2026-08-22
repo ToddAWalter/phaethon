@@ -403,6 +403,47 @@ FileTypeManager::FileTypeManager() {
 
 	_resourceTypes[kResourceTable].push_back(kFileType2DA);
 	_resourceTypes[kResourceTable].push_back(kFileTypeGDA);
+
+	_resourceTypes[kResourceStruct].push_back(kFileTypeRES);
+	_resourceTypes[kResourceStruct].push_back(kFileTypeARE);
+	_resourceTypes[kResourceStruct].push_back(kFileTypeIFO);
+	_resourceTypes[kResourceStruct].push_back(kFileTypeBIC);
+	_resourceTypes[kResourceStruct].push_back(kFileTypeGIT);
+	_resourceTypes[kResourceStruct].push_back(kFileTypeBTI);
+	_resourceTypes[kResourceStruct].push_back(kFileTypeUTI);
+	_resourceTypes[kResourceStruct].push_back(kFileTypeBTC);
+	_resourceTypes[kResourceStruct].push_back(kFileTypeUTC);
+	_resourceTypes[kResourceStruct].push_back(kFileTypeDLG);
+	_resourceTypes[kResourceStruct].push_back(kFileTypeITP);
+	_resourceTypes[kResourceStruct].push_back(kFileTypeBTT);
+	_resourceTypes[kResourceStruct].push_back(kFileTypeUTT);
+	_resourceTypes[kResourceStruct].push_back(kFileTypeBTS);
+	_resourceTypes[kResourceStruct].push_back(kFileTypeUTS);
+	_resourceTypes[kResourceStruct].push_back(kFileTypeGFF);
+	_resourceTypes[kResourceStruct].push_back(kFileTypeFAC);
+	_resourceTypes[kResourceStruct].push_back(kFileTypeBTE);
+	_resourceTypes[kResourceStruct].push_back(kFileTypeUTE);
+	_resourceTypes[kResourceStruct].push_back(kFileTypeBTD);
+	_resourceTypes[kResourceStruct].push_back(kFileTypeUTD);
+	_resourceTypes[kResourceStruct].push_back(kFileTypeBTP);
+	_resourceTypes[kResourceStruct].push_back(kFileTypeUTP);
+	_resourceTypes[kResourceStruct].push_back(kFileTypeGIC);
+	_resourceTypes[kResourceStruct].push_back(kFileTypeGUI);
+	_resourceTypes[kResourceStruct].push_back(kFileTypeBTM);
+	_resourceTypes[kResourceStruct].push_back(kFileTypeUTM);
+	_resourceTypes[kResourceStruct].push_back(kFileTypeBTG);
+	_resourceTypes[kResourceStruct].push_back(kFileTypeUTG);
+	_resourceTypes[kResourceStruct].push_back(kFileTypeJRL);
+	_resourceTypes[kResourceStruct].push_back(kFileTypeUTW);
+	_resourceTypes[kResourceStruct].push_back(kFileTypePTM);
+	_resourceTypes[kResourceStruct].push_back(kFileTypePTT);
+	_resourceTypes[kResourceStruct].push_back(kFileTypeCUT);
+	_resourceTypes[kResourceStruct].push_back(kFileTypeQDB);
+	_resourceTypes[kResourceStruct].push_back(kFileTypeQST);
+	_resourceTypes[kResourceStruct].push_back(kFileTypePTH);
+	_resourceTypes[kResourceStruct].push_back(kFileTypeQST2);
+	_resourceTypes[kResourceStruct].push_back(kFileTypeSTO);
+	_resourceTypes[kResourceStruct].push_back(kFileTypeCWA);
 }
 
 FileTypeManager::~FileTypeManager() {
@@ -520,7 +561,9 @@ Common::UString getPlatformDescription(Platform platform) {
 }
 
 Common::UString getResourceTypeDescription(ResourceType type) {
-	static const char * const names[kResourceMAX] = { "Image", "Video", "Sound", "Archive", "Text", "Table" };
+	static const char * const names[kResourceMAX] = {
+		"Image", "Video", "Sound", "Archive", "Text", "Table", "Struct"
+	};
 
 	if ((type < 0) || (type >= kResourceMAX))
 			return "";
