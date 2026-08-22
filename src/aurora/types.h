@@ -443,6 +443,10 @@ static const uint32_t kObjectIDInvalid = 0xFFFFFFFF;
 static const uint32_t kFieldIDInvalid  = 0xFFFFFFFF;
 static const uint32_t kStrRefInvalid   = 0xFFFFFFFF;
 
+class GFF3Struct;
+typedef std::vector<const GFF3Struct *> GFF3List;
+class GFF3File;
+
 class GFF4Struct;
 typedef std::vector<const GFF4Struct *> GFF4List;
 class GFF4File;

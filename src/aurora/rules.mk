@@ -42,6 +42,7 @@ src_aurora_libaurora_la_SOURCES += \
     src/aurora/2dafile.h \
     src/aurora/gdafile.h \
     src/aurora/gdaheaders.h \
+    src/aurora/gff3file.h \
     src/aurora/gff4file.h \
     src/aurora/gff4fields.h \
     $(EMPTY)
@@ -64,5 +65,6 @@ src_aurora_libaurora_la_SOURCES += \
     src/aurora/2dafile.cpp \
     src/aurora/gdafile.cpp \
     src/aurora/gdaheaders.cpp \
+    src/aurora/gff3file.cpp \
     src/aurora/gff4file.cpp \
     $(EMPTY)
